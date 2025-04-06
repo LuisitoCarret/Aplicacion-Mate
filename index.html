@@ -5,20 +5,28 @@
   <title>Runge-Kutta de Segundo Grado (RK2)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
-  <link rel="stylesheet" href="style.css"> 
   <style>
-    body { font-family: Arial; margin: 20px; }
+    body { font-family: Arial; margin: 20px; background: #f4f4f4; }
     input, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; margin-top: 15px; }
+    table { border-collapse: collapse; margin-top: 15px; background: white; }
     th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: center; }
     canvas { margin-top: 20px; }
+    .intro { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+    footer { margin-top: 30px; font-size: 0.9em; color: #444; }
   </style>
 </head>
 <body>
-  <h2>Resolución de Ecuaciones Diferenciales con Runge-Kutta de Segundo Grado (RK2)</h2>
+
+  <div class="intro">
+    <h2>Método de Runge-Kutta de Segundo Orden (Heun)</h2>
+    <p>Este programa resuelve ecuaciones diferenciales ordinarias usando el método de Runge-Kutta de segundo grado. Puedes ingresar una ecuación, condiciones iniciales, paso <code>h</code> y comparar los resultados con una solución exacta si la conoces.</p>
+  </div>
 
   <label>Ecuación dy/dx = </label>
-  <input type="text" id="equation">
+  <input type="text" id="equation" placeholder="Ej: x + y">
+  <br>
+  <label>Solución exacta y(x) (opcional):</label>
+  <input type="text" id="exactSolution" placeholder="Ej: 2*e^x - x - 1">
   <br>
   <label>x₀ = </label>
   <input type="number" id="x0" step="0.1">
@@ -26,15 +34,18 @@
   <input type="number" id="y0" step="0.1">
   <br>
   <label>h (paso) = </label>
-  <input type="number" id="h" step="0.01">
+  <input type="text" id="h" placeholder="Ej: 0.2 o 0,2">
   <label>x final = </label>
   <input type="number" id="xFinal" step="0.1">
   <br>
   <button onclick="calcular()">Calcular</button>
 
   <div id="tablaResultados"></div>
-
   <canvas id="graph" width="600" height="300"></canvas>
+
+  <footer>
+    <p><strong>Integrantes del equipo:</strong> Juan Pérez, Ana López, Carlos Gómez</p>
+  </footer>
 
   <script src="rk2.js"></script>
 </body>
