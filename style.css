@@ -1,0 +1,141 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+
+  header {
+    background-color: #007BFF;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+
+  header img {
+    width: 40px;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  header h2 {
+    display: inline-block;
+    margin: 0;
+    font-size: 2em;
+    vertical-align: middle;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .intro {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .form-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+
+  .form-group label {
+    flex: 1 0 100%;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .form-group input {
+    width: 48%;
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 10px;
+  }
+
+  #keypad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  #keypad button {
+    background-color: #ffa500;
+    border: none;
+    font-size: 1.2em;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  #keypad button:hover {
+    background-color: #e69500;
+  }
+
+  button[type="button"],
+  button:not([onclick^="insertSymbol"]) {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+  }
+
+  button[type="button"]:hover,
+  button[type="submit"]:hover {
+    background-color: #218838;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px #ccc;
+  }
+
+  table th {
+    background-color: #333;
+    color: #ffa500;
+    padding: 10px;
+    text-transform: uppercase;
+  }
+
+  table td {
+    background-color: #fdfdfd;
+    padding: 10px;
+    text-align: center;
+  }
+
+  canvas {
+    margin-top: 20px;
+    width: 100%;
+    max-height: 400px;
+  }
+
+  footer {
+    margin-top: 30px;
+    font-size: 1em;
+    color: #444;
+    text-align: center;
+  }
+
+  footer p {
+    margin: 0;
+  }

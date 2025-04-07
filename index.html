@@ -2,69 +2,95 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Runge-Kutta de Segundo Grado (RK2)</title>
+  <title>Runge-Kutta de Segundo Orden (Heun)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
-  <style>
-    body { font-family: Arial; margin: 20px; background: #f4f4f4; }
-    input, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; margin-top: 15px; background: white; }
-    th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: center; }
-    canvas { margin-top: 20px; }
-    .intro { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-    #keypad button { margin: 3px; padding: 6px 10px; font-size: 14px; }
-    footer { margin-top: 30px; font-size: 0.9em; color: #444; }
-  </style>
+  <!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="intro">
-    <h2>Método de Runge-Kutta de Segundo Orden (Heun)</h2>
-    <p>Este programa resuelve ecuaciones diferenciales ordinarias usando el método de Runge-Kutta de segundo grado. Puedes ingresar una ecuación, condiciones iniciales, paso <code>h</code> y comparar los resultados con una solución exacta si la conoces.</p>
+  <header>
+    <img src="calculador.png" alt="imagen">
+    <h2>Runge-Kutta de Segundo Orden (Heun)</h2>
+  </header>
+
+  <div class="container">
+    <div class="intro">
+      <p>
+        Esta herramienta permite resolver ecuaciones diferenciales ordinarias utilizando el método de Runge-Kutta de segundo orden (Heun). 
+        Ingresa una ecuación, las condiciones iniciales y el valor del paso <code>h</code> para obtener una aproximación numérica de la solución. 
+        También puedes incluir una solución exacta si la conoces, para visualizar ambas soluciones de forma gráfica y analizar el comportamiento del error.
+      </p>
+    
+      <p style="margin-top: 20px;">
+        <strong>Fórmula de Heun (RK2):</strong><br>
+      </p>
+    
+      <div style="text-align: center; background: #f0f0f0; padding: 15px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+        <code>
+          k₁ = f(xᵢ, yᵢ)<br>
+          k₂ = f(xᵢ + h, yᵢ + h·k₁)<br>
+          yᵢ₊₁ = yᵢ + (h / 2) · (k₁ + k₂)
+        </code>
+      </div>
+    </div>    
+
+    <!-- Ecuaciones -->
+    <div class="form-group">
+      <label for="equation">Ecuación dy/dx =</label>
+      <input type="text" id="equation" placeholder="Ej: x + y">
+    </div>
+
+    <div class="form-group">
+      <label for="exactSolution">Solución exacta y(x) (opcional):</label>
+      <input type="text" id="exactSolution" placeholder="Ej: 2*e^x - x - 1">
+    </div>
+
+    <!-- Teclado tipo calculadora -->
+    <div id="keypad">
+      <button onclick="insertSymbol('x')">x</button>
+      <button onclick="insertSymbol('y')">y</button>
+      <button onclick="insertSymbol('e')">e</button>
+      <button onclick="insertSymbol('+')">+</button>
+      <button onclick="insertSymbol('-')">−</button>
+      <button onclick="insertSymbol('*')">*</button>
+      <button onclick="insertSymbol('/')">/</button>
+      <button onclick="insertSymbol('^')">^</button>
+      <button onclick="insertSymbol('sqrt()')">√</button>
+      <button onclick="insertSymbol('log()')">log</button>
+      <button onclick="insertSymbol('exp()')">exp</button>
+      <button onclick="insertSymbol('(')">(</button>
+      <button onclick="insertSymbol(')')">)</button>
+    </div>
+
+    <!-- Condiciones iniciales -->
+    <div class="form-group">
+      <label for="x0">x₀ = </label>
+      <input type="number" id="x0" step="0.1">
+      <label for="y0">y₀ = </label>
+      <input type="number" id="y0" step="0.1">
+    </div>
+
+    <!-- Paso y final -->
+    <div class="form-group">
+      <label for="h">h (paso) = </label>
+      <input type="text" id="h" placeholder="Ej: 0.2 o 0,2">
+      <label for="xFinal">x final = </label>
+      <input type="number" id="xFinal" step="0.1">
+    </div>
+
+    <!-- Botón principal -->
+    <button onclick="calcular()">Calcular</button>
+
+    <!-- Resultados -->
+    <div id="tablaResultados"></div>
+    <canvas id="graph"></canvas>
   </div>
-
-  <label>Ecuación dy/dx = </label>
-  <input type="text" id="equation" placeholder="Ej: x + y"><br>
-
-  <label>Solución exacta y(x) (opcional):</label>
-  <input type="text" id="exactSolution" placeholder="Ej: 2*e^x - x - 1"><br>
-
-  <!-- Botones tipo calculadora -->
-  <div id="keypad">
-    <button onclick="insertSymbol('x')">x</button>
-    <button onclick="insertSymbol('y')">y</button>
-    <button onclick="insertSymbol('e')">e</button>
-    <button onclick="insertSymbol('+')">+</button>
-    <button onclick="insertSymbol('-')">−</button>
-    <button onclick="insertSymbol('*')">*</button>
-    <button onclick="insertSymbol('/')">/</button>
-    <button onclick="insertSymbol('^')">^</button>
-    <button onclick="insertSymbol('sqrt(')">√</button>
-    <button onclick="insertSymbol('log(')">log</button>
-    <button onclick="insertSymbol('exp(')">exp</button>
-    <button onclick="insertSymbol('(')">(</button>
-    <button onclick="insertSymbol(')')">)</button>
-    <button onclick="borrar()">⌫</button>
-  </div>
-
-  <br>
-  <label>x₀ = </label>
-  <input type="number" id="x0" step="0.1">
-  <label>y₀ = </label>
-  <input type="number" id="y0" step="0.1"><br>
-
-  <label>h (paso) = </label>
-  <input type="text" id="h" placeholder="Ej: 0.2 o 0,2">
-  <label>x final = </label>
-  <input type="number" id="xFinal" step="0.1"><br>
-
-  <button onclick="calcular()">Calcular</button>
-
-  <div id="tablaResultados"></div>
-  <canvas id="graph" width="600" height="300"></canvas>
 
   <footer>
-    <p><strong>Integrantes del equipo:</strong> Juan Pérez, Ana López, Carlos Gómez</p>
+    <p><strong>Integrantes del equipo:</strong> Luis Gael, Yael Alejandro, Hugo Adrián</p>
   </footer>
 
   <script src="rk2.js"></script>

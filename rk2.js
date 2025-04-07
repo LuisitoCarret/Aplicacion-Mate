@@ -1,3 +1,21 @@
+// ==========================
+// FUNCIONES DE FORMATO
+// ==========================
+
+// Esta función reemplaza símbolos o funciones para que math.js los entienda
+function normalizarExpresion(expr) {
+  return expr
+    .replace(/√/g, "sqrt")                  // √x → sqrt(x)
+    .replace(/ln\(/g, "log(")               // ln(x) → log(x)
+    .replace(/sen\(/gi, "sin(")             // sen(x) → sin(x)
+    .replace(/(?<=^|[^a-zA-Z0-9_])e\^/g, "exp(") // e^x → exp(x)
+    .replace(/exp\(([^)]+)\)/g, "exp($1)"); // asegura que exp tenga paréntesis correctos
+}
+
+// ========================
+// BOTONES TIPO CALCULADORA
+// ========================
+
 function insert(targetId, text) {
   const input = document.getElementById(targetId);
   const start = input.selectionStart;
@@ -42,21 +60,24 @@ function borrar() {
   }
 }
 
-// ... aquí va todo tu código ya existente de cálculo (parseFunction, rungeKutta2, mostrarTabla, graficar, calcular)
-// Puedes dejarlo tal como lo tenías en tu `rk2.js`, solo agrega esta parte de arriba al inicio del archivo.
-
+// ==========================
+// FUNCIONES MATEMÁTICAS
+// ==========================
 
 function parseFunction(equation) {
   return (x, y) => {
-    return math.evaluate(equation, { x, y }); // ❌ sin alert, deja que el error se propague
+    return math.evaluate(equation, { x, y, e: Math.E });
   };
 }
-
 
 function redondear(num) {
   if (!isFinite(num)) return '∞';
   return parseFloat(num.toFixed(4));
 }
+
+// ==========================
+// RUNGE-KUTTA DE SEGUNDO ORDEN
+// ==========================
 
 function rungeKutta2(f, x0, y0, h, xFinal, exactFunc = null) {
   const results = [];
@@ -65,8 +86,9 @@ function rungeKutta2(f, x0, y0, h, xFinal, exactFunc = null) {
   while (x <= xFinal + 1e-8) {
     const k1 = f(x, y);
     const k2 = f(x + h, y + h * k1);
+
     if (!isFinite(k1) || !isFinite(k2)) {
-      alert(`⚠️ Cálculo inválido en la iteración ${i}`);
+      Swal.fire('⚠️ Cálculo inválido', `Error en la iteración ${i}`, 'error');
       break;
     }
 
@@ -77,7 +99,7 @@ function rungeKutta2(f, x0, y0, h, xFinal, exactFunc = null) {
       try {
         const xNext = x + h;
         yRealRaw = exactFunc(xNext);
-        if (!isFinite(yRealRaw)) throw new Error("yReal no válido");
+        if (!isFinite(yRealRaw)) throw new Error("y real inválido");
         errorRaw = Math.abs(yRealRaw - yNextRaw);
       } catch {
         yRealRaw = "";
@@ -102,6 +124,10 @@ function rungeKutta2(f, x0, y0, h, xFinal, exactFunc = null) {
   return results;
 }
 
+// ==========================
+// MOSTRAR TABLA
+// ==========================
+
 function mostrarTabla(data) {
   let html = '<h3>Tabla de Resultados</h3><table><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>yᵢ₊₁</th><th>y real</th><th>Error abs</th></tr>';
   data.forEach(p => {
@@ -117,6 +143,10 @@ function mostrarTabla(data) {
   html += '</table>';
   document.getElementById('tablaResultados').innerHTML = html;
 }
+
+// ==========================
+// GRAFICAR RESULTADOS
+// ==========================
 
 function graficar(data) {
   const ctx = document.getElementById('graph').getContext('2d');
@@ -147,9 +177,7 @@ function graficar(data) {
           intersect: false,
           callbacks: {
             label: function (context) {
-              const label = context.dataset.label || '';
-              const value = parseFloat(context.raw).toFixed(5);
-              return `${label}: ${value}`;
+              return `${context.dataset.label}: ${parseFloat(context.raw).toFixed(5)}`;
             }
           }
         }
@@ -168,9 +196,16 @@ function graficar(data) {
   });
 }
 
+// ==========================
+// BOTÓN "CALCULAR"
+// ==========================
+
 function calcular() {
-  const eq = document.getElementById('equation').value.trim();
-  const exactRaw = document.getElementById('exactSolution').value.trim();
+  const rawEq = document.getElementById('equation').value.trim().toLowerCase();
+  const rawExact = document.getElementById('exactSolution').value.trim().toLowerCase();
+  const eq = normalizarExpresion(rawEq);
+  const exactRaw = normalizarExpresion(rawExact);
+
   const x0 = document.getElementById('x0').value.trim();
   const y0 = document.getElementById('y0').value.trim();
   const hRaw = document.getElementById('h').value.trim().replace(",", ".");
@@ -178,7 +213,7 @@ function calcular() {
 
   const numRegex = /^-?\d+(\.\d+)?$/;
   if (!numRegex.test(x0) || !numRegex.test(y0) || !numRegex.test(hRaw) || !numRegex.test(xFinal)) {
-    alert("⚠️ Los campos numéricos no deben contener letras ni estar vacíos.");
+    Swal.fire("❌ Campos inválidos", "Verifica que x₀, y₀, h y x final sean números válidos.", "warning");
     return;
   }
 
@@ -188,77 +223,45 @@ function calcular() {
   const xFinalVal = parseFloat(xFinal);
 
   if (x0Val === 0 && y0Val === 0 && h === 0) {
-    alert("⚠️ No puedes ingresar x₀, y₀ y h todos en cero.");
+    Swal.fire("⚠️ Valores inválidos", "No puedes ingresar x₀, y₀ y h todos en cero.", "error");
     return;
   }
 
   if (h <= 0) {
-    alert("⚠️ El paso h debe ser mayor que 0.");
+    Swal.fire("⚠️ Paso inválido", "El paso h debe ser mayor que 0.", "error");
     return;
   }
 
   if (xFinalVal <= x0Val) {
-    alert("⚠️ x final debe ser mayor que x₀.");
+    Swal.fire("⚠️ Rango inválido", "x final debe ser mayor que x₀.", "error");
     return;
   }
 
   if ((xFinalVal - x0Val) / h > 1000) {
-    alert("⚠️ El número de pasos sería demasiado alto.");
-    return;
-  }
-
-  const validCharsEq = /^[0-9+\-*/^(). xye]*$/i;
-  if (!validCharsEq.test(eq)) {
-    alert("⚠️ La ecuación contiene caracteres no válidos.");
-    return;
-  }
-
-  const exprSinEspacios = eq.replace(/\s+/g, "");
-  if (/^[-+]?\d+(\.\d+)?$/.test(exprSinEspacios)) {
-    alert("⚠️ La ecuación no puede ser una constante.");
-    return;
-  }
-
-  if (!/[xy]/i.test(exprSinEspacios)) {
-    alert("⚠️ La ecuación debe depender de x o y.");
-    return;
-  }
-
-  if (exactRaw !== "" && !validCharsEq.test(exactRaw)) {
-    alert("⚠️ La solución exacta contiene caracteres no válidos.");
+    Swal.fire("⚠️ Demasiados pasos", "Reduce el rango o incrementa el paso h.", "error");
     return;
   }
 
   try {
     const f = parseFunction(eq);
     let exactFunc = null;
-  
+
     if (exactRaw !== "") {
       try {
         const prueba = math.evaluate(exactRaw, { x: 1 });
         if (!isFinite(prueba)) throw new Error("Solución exacta inválida");
         exactFunc = (x) => math.evaluate(exactRaw, { x });
       } catch (e) {
-        if (e.message.includes("Undefined symbol")) {
-          alert("⚠️ La solución exacta contiene símbolos no válidos o no definidos.");
-        } else {
-          alert("⚠️ Error en la solución exacta: " + e.message);
-        }
+        Swal.fire("⚠️ Solución exacta inválida", e.message, "error");
         return;
       }
     }
-  
+
     const resultados = rungeKutta2(f, x0Val, y0Val, h, xFinalVal, exactFunc);
     mostrarTabla(resultados);
     graficar(resultados);
-  
   } catch (error) {
-    if (error.message.includes("Undefined symbol")) {
-      alert("⚠️ La ecuación contiene símbolos no válidos o no definidos. Usa solo x, y, e, operadores y funciones.");
-    } else {
-      alert("⚠️ Hubo un error al calcular: " + error.message);
-    }
+    Swal.fire("⚠️ Error", "No se pudo calcular: " + error.message, "error");
     console.error(error);
   }
-  
 }
